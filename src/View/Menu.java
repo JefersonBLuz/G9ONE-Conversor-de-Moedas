@@ -7,9 +7,10 @@ public class Menu {
 
     public void ExibirMenu() {
         ExibirBarra();
-        System.out.println("Bem vindo ao\nConversor de Moedas");
+        CentralizarMensagem("Bem vindo ao",40);
+        CentralizarMensagem("Conversor de Moedas",40);
         ExibirBarra();
-        System.out.println("Informe o a conversão que deseja Realizar");
+        System.out.println("Informe o a conversão que deseja Realizar:");
 
     }
     public void Clean(){
@@ -17,8 +18,22 @@ public class Menu {
     }
     private void ExibirBarra(){
         String barra = "";
-        for(int i=0; i<=20 ; i++){
+        for(int i=0; i<=40 ; i++){
             barra = barra.concat("=");
         }
+        System.out.println(barra);
+    }
+    private void CentralizarMensagem (String mensagem, Integer maxLetter){
+        var lettersMessage = mensagem.length();
+        if (lettersMessage > maxLetter){
+            System.out.println(mensagem);
+            return;
+        }
+        var adicionar = (maxLetter/2)-(lettersMessage/2);
+        String espacos = "";
+        for (int i=0; i<adicionar; i++){
+            espacos = espacos.concat(" ");
+        }
+        System.out.println(espacos.concat(mensagem));
     }
 }
