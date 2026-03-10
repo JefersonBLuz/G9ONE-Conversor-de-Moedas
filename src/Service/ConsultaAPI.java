@@ -2,30 +2,55 @@ package Service;
 
 import Modelos.Moeda;
 import com.google.gson.Gson;
+import config.variables;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Scanner;
 
 public class ConsultaAPI {
-    public void consultar() throws IOException, InterruptedException {
-        Scanner moeda = new Scanner(System.in);
-        System.out.println("Digite a moeda que deseja buscar:");
-        var moedaBuscada = moeda.nextLine();
-        String query = "https://v6.exchangerate-api.com/v6/510da90dd751c36891f4c11c/latest/" + moedaBuscada;
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(query))
-                .build();
-        HttpResponse<String> response = client
-                .send(request, HttpResponse.BodyHandlers.ofString());
-        String json = response.body();
-        System.out.println(json);
+    public static class ConsultaRequest {
+        private final String from;
+        private final String to;
+        private final double value;
 
-        Gson gson = new Gson();
-        gson.fromJson(json, Moeda.class);
+        public ConsultaRequest(String from, String to, double value) {
+            this.from = from;
+            this.to = to;
+            this.value = value;
+        }
+
+        public String getFrom() {
+            return from;
+        }
+        public String getTo() {
+            return to;
+        }
+        public double getValue() {
+            return value;
+        }
+    }
+
+    public Moeda Consultar() {
+        ConsultaRequest request = new ConsultaRequest("USD", "BRL", 100);
+        return Consultar(request);
+    }
+
+    public Moeda Consultar(ConsultaRequest consultaRequest) {
+        String query = "https://v6.exchangerate-api.com/v6/" + variables.API_KEY + "/pair/" +
+                consultaRequest.getFrom() + "/" + consultaRequest.getTo() + "/" + consultaRequest.getValue();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(query))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            Gson gson = new Gson();
+            return gson.fromJson(response.body(), Moeda.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao consultar API de moedas: " + e.getMessage(), e);
+        }
     }
 }
